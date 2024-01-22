@@ -35,6 +35,7 @@ def process_video():
                 timestamp = vidcap.get(cv2.CAP_PROP_POS_MSEC) // 1000  # Get timestamp in seconds
                 time_str = datetime.fromtimestamp(timestamp).strftime('%Y%m%d%H%M%S')
                 frame_path = os.path.join('frames', f'frame_{time_str}.jpg')
+                print(f'Saving frame {count} to {frame_path}')
                 cv2.imwrite(frame_path, image)
             success, image = vidcap.read()
             count += 1
