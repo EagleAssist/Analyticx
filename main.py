@@ -12,6 +12,13 @@ if not os.path.exists('uploads'):
 if not os.path.exists('frames'):
     os.makedirs('frames')
 
+def save_frame(image, frame_path):
+    try:
+        cv2.imwrite(frame_path, image)
+        print(f'Frame saved successfully: {frame_path}')
+    except Exception as e:
+        print(f'Error saving frame: {e}')
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -32,7 +39,7 @@ def process_video():
 
         vidcap = cv2.VideoCapture(video_path)
         fps = vidcap.get(cv2.CAP_PROP_FPS)  # Get frames per second
-        frames_per_second = 2  # Set the desired frames per second
+        frames_per_second = 1 / 12  # Set the desired frames every 12 seconds
         frame_interval = int(round(fps / frames_per_second))
         success, image = vidcap.read()
         count = 0
@@ -45,7 +52,9 @@ def process_video():
                 seconds = int(timestamp % 60)  # Calculate seconds
 
                 frame_path = os.path.join('frames', f'frame{hours}h/{minutes}m/{seconds}s.jpg')
-                cv2.imwrite(frame_path, image)
+                os.makedirs(os.path.dirname(frame_path), exist_ok=True)  # Ensure subdirectories exist
+                save_frame(image, frame_path)
+
             success, image = vidcap.read()
             count += 1
 
