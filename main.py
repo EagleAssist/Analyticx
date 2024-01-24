@@ -5,6 +5,13 @@ from datetime import datetime
 
 app = Flask(__name__)
 
+# Create 'uploads' and 'frames' directories if they don't exist
+if not os.path.exists('uploads'):
+    os.makedirs('uploads')
+
+if not os.path.exists('frames'):
+    os.makedirs('frames')
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -33,8 +40,11 @@ def process_video():
         while success:
             if count % frame_interval == 0:
                 timestamp = vidcap.get(cv2.CAP_PROP_POS_MSEC) // 1000  # Get timestamp in seconds
-                time_str = datetime.fromtimestamp(timestamp).strftime('%Y%m%d%H%M%S')
-                frame_path = os.path.join('frames', f'frame_{time_str}.jpg')
+                hours = int(timestamp // 3600)  # Calculate hours
+                minutes = int((timestamp % 3600) // 60)  # Calculate minutes
+                seconds = int(timestamp % 60)  # Calculate seconds
+
+                frame_path = os.path.join('frames', f'frame{hours}h/{minutes}m/{seconds}s.jpg')
                 cv2.imwrite(frame_path, image)
             success, image = vidcap.read()
             count += 1
