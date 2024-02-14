@@ -1,0 +1,30 @@
+version: '3'
+services:
+  ingestion:
+    image: python:3.8
+    container_name: flask-app
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./app:/app
+    working_dir: /app
+    command: sh -c "pip install -r requirements.txt && python app.py"
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgres://username:password@postgres:5432/dbname
+
+  postgres:
+    image: postgres:12
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: dbname
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
