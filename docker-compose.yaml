@@ -1,16 +1,15 @@
 version: '3'
 services:
   ingestion: # Not OK
-    image: python:3.8
     container_name: ingestion-app
+    build: ingestion/.
     ports:
       - "5000:5000"
     working_dir: /app
-    command: sh -c "ls && pip install -r requirments.txt && python app.py"
-    depends_on:
-      - postgres
-    environment:
-      DATABASE_URL: postgres://username:password@postgres:5432/dbname
+    # depends_on:
+    #   - postgres
+    # environment:
+    #   DATABASE_URL: postgres://username:password@postgres:5432/dbname
     networks:
       - main_network
 
