@@ -15,6 +15,7 @@ def np_encoder(object):
     
 
 def dectect_elements(image):
+    # TODO Check for File quality [What if a URL]
     response = []
     results = model(image)
     for result in results:

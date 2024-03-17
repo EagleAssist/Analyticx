@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from app import dectect_elements
+from yolo import dectect_elements
 
 app = Flask(__name__)
 

@@ -26,12 +26,12 @@ def index():
 @app.route('/process_video', methods=['POST'])
 def process_video():
     if 'file' not in request.files:
-        return redirect(request.url)
+        return redirect(request.url) # TODO: Add error message
 
     file = request.files['file']
-
+    
     if file.filename == '':
-        return redirect(request.url)
+        return redirect(request.url) # TODO: Add error message
 
     if file:
         video_path = os.path.join('uploads', file.filename)
