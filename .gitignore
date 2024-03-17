@@ -1,0 +1,9 @@
+.env
+frames/**
+venv/
+yolov8n.pt
+yolov8s.pt
+yolov8m.pt
+yolov8l.pt
+yolov8xl.pt
+```test_data/

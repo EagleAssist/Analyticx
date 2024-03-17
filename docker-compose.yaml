@@ -1,0 +1,67 @@
+version: '3'
+services:
+  ingestion:
+    image: python:3.8
+    container_name: ingestion-app
+    ports:
+      - "5000:5000"
+    working_dir: /app
+    command: sh -c "ls && pip install -r requirments.txt && python app.py"
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgres://username:password@postgres:5432/dbname
+    networks:
+      - main_network
+
+  dectection:
+    image: python:3.8
+    container_name: dection-yolo
+    ports:
+      - "8000:5000"
+    working_dir: /dectection
+    command: sh -c "pip install -r requirements.txt && python app.py"
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgres://username:password@postgres:5432/main
+    networks:
+      - main_network
+  
+  minio:
+    image: docker.io/bitnami/minio:2022
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    networks:
+      - main_network
+    volumes:
+      - 'minio_data:/data'
+    environment:
+      - MINIO_ROOT_USER=minio_user
+      - MINIO_ROOT_PASSWORD=minio_password
+      - MINIO_DEFAULT_BUCKETS=main_storage
+
+  postgres:
+    image: postgres:12
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: main
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - main_network
+
+
+volumes:
+  pgdata:
+  minio_data:
+    driver: local
+  
+
+networks:
+  main_network:
