@@ -1,6 +1,6 @@
 version: '3'
 services:
-  ingestion:
+  ingestion: # Not OK
     image: python:3.8
     container_name: ingestion-app
     ports:
@@ -14,7 +14,7 @@ services:
     networks:
       - main_network
 
-  dectection:
+  dectection: # Not OK
     image: python:3.8
     container_name: dection-yolo
     ports:
@@ -28,7 +28,7 @@ services:
     networks:
       - main_network
   
-  minio:
+  minio: # Not OK
     image: docker.io/bitnami/minio:2022
     ports:
       - '9000:9000'
@@ -40,9 +40,18 @@ services:
     environment:
       - MINIO_ROOT_USER=minio_user
       - MINIO_ROOT_PASSWORD=minio_password
-      - MINIO_DEFAULT_BUCKETS=main_storage
-
-  postgres:
+      - MINIO_DEFAULT_BUCKETS=storageone
+      
+  rabbitmq: # Not OK
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
+    ports:
+      - "5672:5672" 
+      - "15672:15672" 
+    networks:
+      - main_network
+      
+  postgres: # OK
     image: postgres:12
     container_name: postgres-db
     environment:
