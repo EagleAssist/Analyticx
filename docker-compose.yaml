@@ -1,20 +1,19 @@
 version: '3'
 services:
-  ingestion:
-    image: python:3.8
+  ingestion: # Not OK
     container_name: ingestion-app
+    build: ingestion/.
     ports:
       - "5000:5000"
     working_dir: /app
-    command: sh -c "ls && pip install -r requirments.txt && python app.py"
-    depends_on:
-      - postgres
-    environment:
-      DATABASE_URL: postgres://username:password@postgres:5432/dbname
+    # depends_on:
+    #   - postgres
+    # environment:
+    #   DATABASE_URL: postgres://username:password@postgres:5432/dbname
     networks:
       - main_network
 
-  dectection:
+  dectection: # Not OK
     image: python:3.8
     container_name: dection-yolo
     ports:
@@ -28,7 +27,7 @@ services:
     networks:
       - main_network
   
-  minio:
+  minio: # Not OK
     image: docker.io/bitnami/minio:2022
     ports:
       - '9000:9000'
@@ -40,9 +39,18 @@ services:
     environment:
       - MINIO_ROOT_USER=minio_user
       - MINIO_ROOT_PASSWORD=minio_password
-      - MINIO_DEFAULT_BUCKETS=main_storage
-
-  postgres:
+      - MINIO_DEFAULT_BUCKETS=storageone
+      
+  rabbitmq: # Not OK
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
+    ports:
+      - "5672:5672" 
+      - "15672:15672" 
+    networks:
+      - main_network
+      
+  postgres: # OK
     image: postgres:12
     container_name: postgres-db
     environment:

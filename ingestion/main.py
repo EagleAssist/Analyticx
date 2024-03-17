@@ -1,7 +1,20 @@
 from flask import Flask, render_template, request, redirect
 import cv2
 import os
+from minio import Minio
 from datetime import datetime
+from minio.error import S3Error
+from dotenv  import load_dotenv
+
+
+load_dotenv()
+
+minio_client = {
+    Minio("minio:9000",
+          access_key=os.getenv('MINIO_ACCESS_KEY'),
+          secret_key=os.getenv('MINIO_SECRET_KEY'),
+          secure=False)
+}
 
 app = Flask(__name__)
 
@@ -12,12 +25,30 @@ if not os.path.exists('uploads'):
 if not os.path.exists('frames'):
     os.makedirs('frames')
 
+
 def save_frame(image, frame_path):
     try:
         cv2.imwrite(frame_path, image)
-        print(f'Frame saved successfully: {frame_path}')
+        source_file = frame_path
+        bucket_name = "storageone"
+        destination_file = frame_path
+
+        # TODO : upload these files in another file and diffrent thread
+        found = minio_client.bucket_exists(bucket_name)
+        if not found:
+            minio_client.make_bucket(bucket_name)
+            print("Created bucket", bucket_name)
+        else:
+            print("Bucket", bucket_name, "already exists")
+        
+        print("Uploading", source_file, "as", destination_file, "to bucket", bucket_name, "...")
+        minio_client.fput_object(
+        bucket_name, destination_file, source_file,
+        )
+        print(source_file, "successfully uploaded as object", destination_file, "to bucket", bucket_name,
+        )
     except Exception as e:
-        print(f'Error saving frame: {e}')
+        print(f'Error sending the frame: {e}')
 
 @app.route('/')
 def index():
@@ -26,12 +57,14 @@ def index():
 @app.route('/process_video', methods=['POST'])
 def process_video():
     if 'file' not in request.files:
-        return redirect(request.url) # TODO: Add error message
+        # return redirect(request.url) # TODO: Add error message
+        render_template('error.html', error_type='file_not_found')
 
     file = request.files['file']
     
     if file.filename == '':
-        return redirect(request.url) # TODO: Add error message
+        # return redirect(request.url) # TODO: Add error message
+        render_template('error.html',error_type="empty_filename")
 
     if file:
         video_path = os.path.join('uploads', file.filename)
@@ -51,9 +84,11 @@ def process_video():
                 minutes = int((timestamp % 3600) // 60)  # Calculate minutes
                 seconds = int(timestamp % 60)  # Calculate seconds
 
-                frame_path = os.path.join('frames', f'frame{hours}h/{minutes}m/{seconds}s.jpg')
+                frame_path = os.path.join('frames', f'frame{hours}h-{minutes}m-{seconds}s.jpg')
                 os.makedirs(os.path.dirname(frame_path), exist_ok=True)  # Ensure subdirectories exist
+                
                 save_frame(image, frame_path)
+
 
             success, image = vidcap.read()
             count += 1
@@ -61,4 +96,4 @@ def process_video():
         return render_template('result.html', count=count)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port='5000')

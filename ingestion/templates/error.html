@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Error</title>
+</head>
+<body>
+    <h1>Error</h1>
+    {% if error_type == 'file_not_found' %}
+        <p>Sorry, no file was uploaded.</p>
+    {% elif error_type == 'empty_filename' %}
+        <p>Sorry, the uploaded file has no filename.</p>
+    {% else %}
+        <p>Sorry, an error occurred while processing your request.</p>
+    {% endif %}
+</body>
+</html>
