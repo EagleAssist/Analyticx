@@ -1,16 +1,24 @@
 from flask import Flask, request, jsonify
 from yolo import dectect_elements
 import pika  # RabbitMQ
+from minio import Minios
 
 app = Flask(__name__)
-
+minio_client = Minio("minio:9000",
+                     access_key="O22u8yhKEhqOFGKu",
+                     secret_key="Chd5l7J3VWWuJ9V17KxJgJi4Wdr24tW0",
+                     secure=False)
 
 # TODO : Move this to a separate file
 def fetch_from_minio(frame_path):
-    # TODO : Fetch from Minio
-    pass
+    bucket_name = "storageone"
+    obj =  minio_client.f_get_object(
+        bucket_name,
+        frame_path)
+    return obj
 
-@app.route('/detect', methods=['POST'])
+
+@app.route('/detect', methods=['POST']) # For testing purposes
 def detect():
     image = request.files['image']
     image_path = '/tmp/image.jpg'
@@ -21,8 +29,8 @@ def detect():
 def process_message(ch, method, properties, body):
     print(f' [x] Received {body}')
     # TODO : Fetch from Minio and respond to dectect elements use f_get_object
-    fetch_from_minio(body)
-    dectect_elements(body)
+    image_obj = fetch_from_minio(body)
+    print(dectect_elements(image_obj))
     print(f' [x] Done')
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
