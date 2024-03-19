@@ -8,8 +8,9 @@ services:
     working_dir: /app
     # depends_on:
     #   - postgres
-    # environment:
-    #   DATABASE_URL: postgres://username:password@postgres:5432/dbname
+    environment:
+      MINIO_ENDPOINT: minio:9000
+      DATABASE_URL: postgres://username:password@postgres:5432/main
     networks:
       - main_network
 
@@ -24,6 +25,7 @@ services:
       - postgres
     environment:
       DATABASE_URL: postgres://username:password@postgres:5432/main
+      MINIO_ENDPOINT: minio:9000
     networks:
       - main_network
   

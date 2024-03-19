@@ -1,0 +1,3 @@
+Postgres Video Table
+
+id  filename  length  frames  processed
